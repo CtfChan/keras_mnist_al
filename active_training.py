@@ -110,6 +110,12 @@ for i in range(acquisition_iterations):
 
     if (args.acquisition_function == 'RANDOM'):
         acquired_index = np.asarray(random.sample(range(0, X_Pool.shape[0]), num_of_queries))
+        acquired_X = X_Pool[acquired_index]
+        acquired_Y = y_Pool[acquired_index]	
+
+        # Remove the acquired data from the unlabeled Pool
+        X_Pool = np.delete(X_Pool, (acquired_index), axis=0)
+        y_Pool = np.delete(y_Pool, (acquired_index), axis=0)
     #other methods require MCDropout
     else:
         pool_subset_count = 2000
@@ -133,12 +139,12 @@ for i in range(acquisition_iterations):
             acquired_index = np.argsort(np.max(s, axis=1))[:num_of_queries]
 
         
-    acquired_X = X_Pool_subset[acquired_index] 
-    acquired_Y = y_Pool_subset[acquired_index]	
+        acquired_X = X_Pool_subset[acquired_index] 
+        acquired_Y = y_Pool_subset[acquired_index]	
 
-    # Remove the acquired data from the unlabeled Pool
-    X_Pool = np.delete(X_Pool, (pool_subset_random_index[acquired_index]), axis=0)
-    y_Pool = np.delete(y_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+        # Remove the acquired data from the unlabeled Pool
+        X_Pool = np.delete(X_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+        y_Pool = np.delete(y_Pool, (pool_subset_random_index[acquired_index]), axis=0)
 
     print('Acquired Points added to the training set')
     X_train = np.concatenate((X_train, acquired_X), axis=0)
@@ -168,8 +174,8 @@ for i in range(acquisition_iterations):
 
 
 print('Storing Accuracy Values over experiments')
-test_str = './results/' + args.acquisition_function + '_test_acc_' + args.trial_number + '.npy'
-train_str =  './results/' + args.acquisition_function + '_train_acc_' + args.trial_number + '.npy'
+test_str = './results/' + args.acquisition_function + '_' + str(args.trial_number) + '_test_acc.npy'
+train_str = './results/' + args.acquisition_function + '_' + str(args.trial_number) + '_train_acc.npy'
 
 np.save(test_str, all_accuracy)
 np.save(train_str, Pool_Train_Acc)
