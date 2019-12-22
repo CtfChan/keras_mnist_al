@@ -1,8 +1,7 @@
 #!/bin/bash
 # Basic range in for loop
-declare -a arr=("RANDOM" "ENTROPY" "VAR_RATIO")
 
-for af in RANDOM ENTROPY VAR_RATIO
+for af in RANDOM ENTROPY VAR_RATIO BALD
 do
     echo $af
     for value in {1..5}

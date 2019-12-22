@@ -116,6 +116,33 @@ for i in range(acquisition_iterations):
         # Remove the acquired data from the unlabeled Pool
         X_Pool = np.delete(X_Pool, (acquired_index), axis=0)
         y_Pool = np.delete(y_Pool, (acquired_index), axis=0)
+
+    elif (args.acquisition_function == 'MARGIN_SAMPLING'):
+        pool_subset_count = 2000
+        pool_subset_random_index = np.asarray(random.sample(range(0, X_Pool.shape[0]), pool_subset_count))
+        X_Pool_subset = X_Pool[pool_subset_random_index]
+        y_Pool_subset = y_Pool[pool_subset_random_index]
+
+        # only one MC sample is needed
+        learning_phase = False  # don't use dropout
+        MC_samples = [MC_output([X_Pool_subset, learning_phase])[0] for _ in range(1)]
+        MC_samples = np.array(MC_samples)  # [#samples x batch size x #classes]    
+        s = np.mean(MC_samples, axis=0) # sum over samples, [batch size x #classes]
+        
+        # find top two probabilities
+        two_max = np.argpartition(s, -2, axis=1)
+        first_max = np.take_along_axis(s, two_max[:, -1].reshape(pool_subset_count, 1), axis=1)
+        second_max = np.take_along_axis(s, two_max[:, -2].reshape(pool_subset_count, 1), axis=1)
+        margin = np.abs(first_max - second_max)
+
+        acquired_index = np.argsort(np.min(margin, axis=1))[:num_of_queries]
+        acquired_X = X_Pool_subset[acquired_index] 
+        acquired_Y = y_Pool_subset[acquired_index]	
+
+        # Remove the acquired data from the unlabeled Pool
+        X_Pool = np.delete(X_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+        y_Pool = np.delete(y_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+        
     #other methods require MCDropout
     else:
         pool_subset_count = 2000
@@ -130,15 +157,25 @@ for i in range(acquisition_iterations):
         learning_phase = True  # use dropout at test time
         MC_samples = [MC_output([X_Pool_subset, learning_phase])[0] for _ in range(dropout_iterations)]
         MC_samples = np.array(MC_samples)  # [#samples x batch size x #classes]    
-        s = np.mean(MC_samples, axis=0)
+        s = np.mean(MC_samples, axis=0) # sum over samples
 
         if (args.acquisition_function == 'ENTROPY'):
-            entropy = np.sum(np.multiply(s, np.log(s)), axis=1) 
+            entropy = np.sum(np.multiply(s, np.log(s)), axis=1) # sum over classes
             acquired_index = np.argsort(entropy)[:num_of_queries]
         elif (args.acquisition_function == 'VAR_RATIO'):
-            acquired_index = np.argsort(np.max(s, axis=1))[:num_of_queries]
+            acquired_index = np.argsort(np.max(s, axis=1))[:num_of_queries] #get max of each row and sort
+        elif (args.acquisition_function == 'BALD'):
+            entropy = np.sum(np.multiply(s, np.log(s)), axis=1) # sum over classes
+            expected_entropy = np.multiply(MC_samples, np.log(MC_samples))
+            expected_entropy = np.sum(np.sum(expected_entropy, axis=2), axis=0)
+            expected_entropy = np.divide(expected_entropy, dropout_iterations)
+            bald = entropy - expected_entropy
+            acquired_index = np.argsort(np.max(bald, axis=0))[:num_of_queries]
+        elif (args.acquisition_function == 'MEAN_STD'):
+            variance = np.var(MC_samples, axis=0)
+            mean_std = np.mean(variance, axis=1)
+            acquired_index = np.argsort(mean_std, axis=0)[:num_of_queries]
 
-        
         acquired_X = X_Pool_subset[acquired_index] 
         acquired_Y = y_Pool_subset[acquired_index]	
 
