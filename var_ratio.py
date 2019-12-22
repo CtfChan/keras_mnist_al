@@ -122,6 +122,12 @@ for i in range(acquisition_iterations):
         s = np.mean(MC_samples, axis=0)
         acquired_index = np.argsort(np.max(s, axis=1))[:num_of_queries]
     
+        #margin sampling 
+
+
+        #BALD
+
+
     
     acquired_X = X_Pool_subset[acquired_index]
     acquired_Y = y_Pool_subset[acquired_index]	
