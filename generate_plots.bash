@@ -1,7 +1,7 @@
 #!/bin/bash
 # Basic range in for loop
 
-for af in RANDOM ENTROPY VAR_RATIO BALD
+for af in RANDOM ENTROPY VAR_RATIO BALD MEAN_STD MARGIN_SAMPLING
 do
     echo $af
     for value in {1..5}

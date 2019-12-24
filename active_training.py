@@ -170,7 +170,7 @@ for i in range(acquisition_iterations):
             expected_entropy = np.sum(np.sum(expected_entropy, axis=2), axis=0)
             expected_entropy = np.divide(expected_entropy, dropout_iterations)
             bald = entropy - expected_entropy
-            acquired_index = np.argsort(np.max(bald, axis=0))[:num_of_queries]
+            acquired_index = np.argsort(bald, axis=0)[:num_of_queries]
         elif (args.acquisition_function == 'MEAN_STD'):
             variance = np.var(MC_samples, axis=0)
             mean_std = np.mean(variance, axis=1)
