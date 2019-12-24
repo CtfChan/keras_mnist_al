@@ -174,7 +174,7 @@ for i in range(acquisition_iterations):
         elif (args.acquisition_function == 'MEAN_STD'):
             variance = np.var(MC_samples, axis=0)
             mean_std = np.mean(variance, axis=1)
-            acquired_index = np.argsort(mean_std, axis=0)[:num_of_queries]
+            acquired_index = np.argsort(mean_std, axis=0)[-num_of_queries:]
 
         acquired_X = X_Pool_subset[acquired_index] 
         acquired_Y = y_Pool_subset[acquired_index]	
