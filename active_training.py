@@ -198,9 +198,6 @@ for i in range(acquisition_iterations):
     Train_Result_Optimizer = hist.history
     Train_Acc = np.asarray(Train_Result_Optimizer.get('accuracy'))
     Train_Acc = np.array([Train_Acc]).T
-
-    print(Train_Acc)
-    print(Pool_Train_Acc)
     Pool_Train_Acc = np.append(Pool_Train_Acc, Train_Acc, axis=1)	
 
     print('Evaluate Model Test Accuracy after training')
