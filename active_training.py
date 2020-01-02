@@ -87,12 +87,11 @@ Y_train = np_utils.to_categorical(y_train, nb_classes)
 Y_test = np_utils.to_categorical(y_test, nb_classes)
 Y_Pool = np_utils.to_categorical(y_Pool, nb_classes)
 
-
 Pool_Train_Acc = np.zeros(shape=(nb_epoch, 1)) 
 
 hist = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch, verbose=0)
 Train_Result_Optimizer = hist.history
-Train_Acc = np.asarray(Train_Result_Optimizer.get('acc'))
+Train_Acc = np.asarray(Train_Result_Optimizer.get('accuracy'))
 Train_Acc = np.array([Train_Acc]).T
 Pool_Train_Acc = Train_Acc
 
@@ -197,10 +196,12 @@ for i in range(acquisition_iterations):
     hist = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch, verbose=0)
     
     Train_Result_Optimizer = hist.history
-    Train_Acc = np.asarray(Train_Result_Optimizer.get('acc'))
+    Train_Acc = np.asarray(Train_Result_Optimizer.get('accuracy'))
     Train_Acc = np.array([Train_Acc]).T
-    Pool_Train_Acc = np.append(Pool_Train_Acc, Train_Acc, axis=1)	
 
+    print(Train_Acc)
+    print(Pool_Train_Acc)
+    Pool_Train_Acc = np.append(Pool_Train_Acc, Train_Acc, axis=1)	
 
     print('Evaluate Model Test Accuracy after training')
 
