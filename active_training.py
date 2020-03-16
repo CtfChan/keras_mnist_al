@@ -14,6 +14,8 @@ from cnn_architecture2 import *
 
 import argparse
 
+import sys
+
 
 #parameters
 batch_size = 128
@@ -124,9 +126,9 @@ for i in range(acquisition_iterations):
 
         # only one MC sample is needed
         learning_phase = False  # don't use dropout
-        MC_samples = [MC_output([X_Pool_subset, learning_phase])[0] for _ in range(1)]
-        MC_samples = np.array(MC_samples)  # [#samples x batch size x #classes]    
-        s = np.mean(MC_samples, axis=0) # sum over samples, [batch size x #classes]
+        model_output = [MC_output([X_Pool_subset, learning_phase])[0] for _ in range(1)]
+        model_output = np.array(model_output)  # [1 x batch size x #classes]    
+        s = np.mean(model_output, axis=0) # sum over samples, [batch size x #classes]
         
         # find top two probabilities
         two_max = np.argpartition(s, -2, axis=1)
@@ -141,7 +143,39 @@ for i in range(acquisition_iterations):
         # Remove the acquired data from the unlabeled Pool
         X_Pool = np.delete(X_Pool, (pool_subset_random_index[acquired_index]), axis=0)
         y_Pool = np.delete(y_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+    
+    elif (args.acquisition_function == 'CLASSIFICATION_STABILITY'):
+        pool_subset_count = 2000
+        pool_subset_random_index = np.asarray(random.sample(range(0, X_Pool.shape[0]), pool_subset_count))
+        X_Pool_subset = X_Pool[pool_subset_random_index]
+        y_Pool_subset = y_Pool[pool_subset_random_index]
         
+        all_samples = []
+        mu = 0
+        sigma = [0, 2, 4, 8, 16]
+        for s in sigma:
+            noise = np.round( np.random.normal(mu, sigma, X_Pool_subset.shape) )
+            aug_X_Pool_subset = X_Pool_subset + noise
+            np.clip(aug_X_Pool_subset, 0, 255)
+
+            learning_phase = False  # don't use dropout
+            curr_sample = [MC_output([X_Pool_subset, learning_phase])[0]]
+            all_samples.extend(curr_sample)
+
+        all_samples = np.array(all_samples)  # [len(sigma) x pool_subset_count x #classes]    
+
+        variance = np.var(all_samples, axis=0)
+        mean_std = np.mean(variance, axis=1)
+        
+        acquired_index = np.argsort(mean_std, axis=0)[-num_of_queries:]
+
+        acquired_X = X_Pool_subset[acquired_index] 
+        acquired_Y = y_Pool_subset[acquired_index]	
+
+        # Remove the acquired data from the unlabeled Pool
+        X_Pool = np.delete(X_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+        y_Pool = np.delete(y_Pool, (pool_subset_random_index[acquired_index]), axis=0)
+   
     #other methods require MCDropout
     else:
         pool_subset_count = 2000
