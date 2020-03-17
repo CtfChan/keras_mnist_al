@@ -37,7 +37,12 @@ parser.add_argument('--trial_number', type=int, default=0, metavar='N',
                     help='trial number for given acquisition function (default: 0)')
 parser.add_argument('--acquisition_function', type=str, default='RANDOM', metavar='N',
                     help='type of acquisition. Options are: RANDOM, ENTROPY, VAR_RATIO')
+parser.add_argument('--reverse_metrics', type=bool, default=False, metavar='N',
+                    help='reverse metrics to acquire least favorable functions')
 args = parser.parse_args()
+
+print("Are we reversing metrics?")
+print(args.reverse_metrics)
 
 print("Training with the following acquisition function: ", args.acquisition_function)
 print("Training for trial #: ", args.trial_number)
@@ -137,6 +142,11 @@ for i in range(acquisition_iterations):
         margin = np.abs(first_max - second_max)
 
         acquired_index = np.argsort(np.min(margin, axis=1))[:num_of_queries]
+        
+        if args.reverse_metrics == True:
+            acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
+
+
         acquired_X = X_Pool_subset[acquired_index] 
         acquired_Y = y_Pool_subset[acquired_index]	
 
@@ -169,6 +179,10 @@ for i in range(acquisition_iterations):
         
         acquired_index = np.argsort(mean_std, axis=0)[-num_of_queries:]
 
+        if args.reverse_metrics == True:
+            acquired_index = np.argsort(np.min(margin, axis=1))[:num_of_queries]
+
+
         acquired_X = X_Pool_subset[acquired_index] 
         acquired_Y = y_Pool_subset[acquired_index]	
 
@@ -195,8 +209,17 @@ for i in range(acquisition_iterations):
         if (args.acquisition_function == 'ENTROPY'):
             entropy = np.sum(np.multiply(s, np.log(s)), axis=1) # sum over classes
             acquired_index = np.argsort(entropy)[:num_of_queries]
+            
+            if args.reverse_metrics == True:
+                acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
+
         elif (args.acquisition_function == 'VAR_RATIO'):
             acquired_index = np.argsort(np.max(s, axis=1))[:num_of_queries] #get max of each row and sort
+
+            if args.reverse_metrics == True:
+                acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
+
+
         elif (args.acquisition_function == 'BALD'):
             entropy = np.sum(np.multiply(s, np.log(s)), axis=1) # sum over classes
             expected_entropy = np.multiply(MC_samples, np.log(MC_samples))
@@ -204,10 +227,18 @@ for i in range(acquisition_iterations):
             expected_entropy = np.divide(expected_entropy, dropout_iterations)
             bald = entropy - expected_entropy
             acquired_index = np.argsort(bald, axis=0)[:num_of_queries]
+
+            if args.reverse_metrics == True:
+                acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
+
         elif (args.acquisition_function == 'MEAN_STD'):
             variance = np.var(MC_samples, axis=0)
             mean_std = np.mean(variance, axis=1)
             acquired_index = np.argsort(mean_std, axis=0)[-num_of_queries:]
+
+            if args.reverse_metrics == True:
+                acquired_index = np.argsort(np.min(margin, axis=1))[:num_of_queries]
+
 
         acquired_X = X_Pool_subset[acquired_index] 
         acquired_Y = y_Pool_subset[acquired_index]	
