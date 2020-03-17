@@ -180,7 +180,7 @@ for i in range(acquisition_iterations):
         acquired_index = np.argsort(mean_std, axis=0)[-num_of_queries:]
 
         if args.reverse_metrics == True:
-            acquired_index = np.argsort(np.min(margin, axis=1))[:num_of_queries]
+            acquired_index = np.argsort(np.min(mean_std, axis=0))[:num_of_queries]
 
 
         acquired_X = X_Pool_subset[acquired_index] 
@@ -211,14 +211,13 @@ for i in range(acquisition_iterations):
             acquired_index = np.argsort(entropy)[:num_of_queries]
             
             if args.reverse_metrics == True:
-                acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
+                acquired_index = np.argsort(entropy)[-num_of_queries:]
 
         elif (args.acquisition_function == 'VAR_RATIO'):
             acquired_index = np.argsort(np.max(s, axis=1))[:num_of_queries] #get max of each row and sort
 
             if args.reverse_metrics == True:
-                acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
-
+                acquired_index = np.argsort(np.max(s, axis=1))[-num_of_queries:] 
 
         elif (args.acquisition_function == 'BALD'):
             entropy = np.sum(np.multiply(s, np.log(s)), axis=1) # sum over classes
@@ -229,7 +228,7 @@ for i in range(acquisition_iterations):
             acquired_index = np.argsort(bald, axis=0)[:num_of_queries]
 
             if args.reverse_metrics == True:
-                acquired_index = np.argsort(np.min(margin, axis=1))[-num_of_queries:]
+                acquired_index = np.argsort(bald, axis=0)[-num_of_queries:]
 
         elif (args.acquisition_function == 'MEAN_STD'):
             variance = np.var(MC_samples, axis=0)
@@ -237,7 +236,7 @@ for i in range(acquisition_iterations):
             acquired_index = np.argsort(mean_std, axis=0)[-num_of_queries:]
 
             if args.reverse_metrics == True:
-                acquired_index = np.argsort(np.min(margin, axis=1))[:num_of_queries]
+                acquired_index = np.argsort(mean_std, axis=0)[:num_of_queries]
 
 
         acquired_X = X_Pool_subset[acquired_index] 
