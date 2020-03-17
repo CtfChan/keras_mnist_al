@@ -10,12 +10,12 @@ af_color = {'ENTROPY': 'r',
             'MARGIN_SAMPLING': 'c',
             'CLASSIFICATION_STABILITY': 'm'}
 
-plt.axis([0, 1000, 0.8, 1])
+plt.axis([0, 1000, 0.1, 1])
 plt.yticks(np.array(range(11))*0.02 + 0.8)
 plt.xticks(np.array(range(10))*100)
 for a in af_color.keys():
     acc_list = []
-    for i in range(1, 6):
+    for i in range(1, 2):
         file_str = './results/' + a + '_' + str(i) + '_test_acc.npy'
         acc = np.load(file_str)
         acc_list.append(acc)
@@ -25,7 +25,7 @@ for a in af_color.keys():
 plt.ylabel('Test set accuracy')
 plt.xlabel('Number of data points used')
 plt.grid()
-plt.title('Comparison of Various Acquisition Function on MNIST')
+plt.title('Comparison of Various Acquisition Functions on MNIST using Reversed Metric')
 plt.legend(loc=0)
 plt.savefig("mnist_al_results")
 plt.show()
