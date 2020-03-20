@@ -10,6 +10,10 @@ af_color = {'ENTROPY': 'r',
             'MARGIN_SAMPLING': 'c',
             'CLASSIFICATION_STABILITY': 'm'}
 
+acquisition_iterations = 99
+num_of_queries = 10
+
+
 plt.axis([0, 1000, 0.1, 1])
 plt.yticks(np.array(range(11))*0.02 + 0.8)
 plt.xticks(np.array(range(10))*100)
@@ -20,10 +24,10 @@ for a in af_color.keys():
         acc = np.load(file_str)
         acc_list.append(acc)
     acc_mean = np.mean(acc_list, axis=0)
-    plt.plot(np.array(range(99))*10, acc_mean, label=a, marker='x')
+    plt.plot(np.array(range(acquisition_iterations))*num_of_queries, acc_mean, label=a, marker='x')
 
 plt.ylabel('Test set accuracy')
-plt.xlabel('Number of data points used')
+plt.xlabel('Number of additional data points used')
 plt.grid()
 plt.title('Comparison of Various Acquisition Functions on MNIST using Reversed Metric')
 plt.legend(loc=0)

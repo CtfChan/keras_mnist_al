@@ -26,7 +26,7 @@ input_shape = (img_rows, img_cols, 1)
 
 score=0
 all_accuracy = 0
-acquisition_iterations = 98
+acquisition_iterations = 99
 dropout_iterations = 100 #use a large number of dropout iterations
 num_of_queries = 10
 
@@ -111,8 +111,8 @@ print('Starting Active Learning in Experiment ')
 nb_MC_samples = 100
 MC_output = K.function([model.layers[0].input, K.learning_phase()], [model.layers[-1].output])
 
-for i in range(acquisition_iterations):
-    print('ACQUISITION ITERATION ' + str(i+1) + ' of ' + str(acquisition_iterations))
+for i in range(1, acquisition_iterations):
+    print('ACQUISITION ITERATION ' + str(i) + ' of ' + str(acquisition_iterations))
 
     if (args.acquisition_function == 'RANDOM'):
         acquired_index = np.asarray(random.sample(range(0, X_Pool.shape[0]), num_of_queries))
