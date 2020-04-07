@@ -1,5 +1,11 @@
-Implementation of the paper: Deep Bayesian Active Learning with Image Data by Yarin Gal et.al.
+# Keras MNIST Active Learning
 
-The code is mostly a cleaned up version of the original code by Riashat Islam: https://github.com/Riashat/Active-Learning-Bayesian-Convolutional-Neural-Networks
+This repo contains some of the code that was used as part of my undergraduate thesis "Active Learning for Deep Object Detection". Code was adapted from [bnajasim's Deep-Bayesian-Active-Learning repository](https://github.com/bnjasim/Deep-Bayesian-Active-Learning)
 
-I just tweaked the code a little bit to make it run faster.
+## Running Experiments
+```
+bash generate_plots.bash
+python3 plot_acc.py # visualize performance
+python3 analysis.py # generate table for latex document
+```
+
